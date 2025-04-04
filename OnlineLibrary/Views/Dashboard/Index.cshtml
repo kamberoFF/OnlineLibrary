@@ -1,0 +1,224 @@
+﻿@using OnlineLibrary.ViewModels.Dashboard
+@model DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="container">
+    <h1 class="mb-4">My Library Dashboard</h1>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Welcome, @Model.User.FirstName!</h5>
+                </div>
+                <div class="card-body">
+                    <p>Manage your borrowed books, view your reading history, and update your account settings.</p>
+                    <div class="d-grid gap-2">
+                        <a asp-controller="Book" asp-action="Catalog" class="btn btn-outline-primary">Browse Books</a>
+                        <a asp-controller="Account" asp-action="Settings" class="btn btn-outline-secondary">Account Settings</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card shadow-sm h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Your Library Stats</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <h2 class="text-primary">@Model.BorrowedBooks.Count(b => b.ReturnDate == null)</h2>
+                                <p class="text-muted">Currently Borrowed</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <h2 class="text-success">@Model.BorrowedBooks.Count(b => b.ReturnDate != null)</h2>
+                                <p class="text-muted">Books Returned</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <h2 class="text-info">@Model.ReadingHistory.Count</h2>
+                                <p class="text-muted">Books Read</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Currently Borrowed Books</h5>
+        </div>
+        <div class="card-body">
+            @if (!Model.BorrowedBooks.Any(b => b.ReturnDate == null))
+            {
+                <p class="text-muted">You don't have any books currently borrowed.</p>
+                <a asp-controller="Book" asp-action="Catalog" class="btn btn-primary">Browse Books</a>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Author</th>
+                                <th>Borrowed Date</th>
+                                <th>Due Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var book in Model.BorrowedBooks.Where(b => b.ReturnDate == null))
+                            {
+                                <tr class="@(book.IsOverdue ? "table-danger" : "")">
+                                    <td><a asp-controller="Book" asp-action="Details" asp-route-id="@book.BookId">@book.BookTitle</a></td>
+                                    <td>@book.BookAuthor</td>
+                                    <td>@book.BorrowDate.ToString("MMM dd, yyyy")</td>
+                                    <td>@book.DueDate.ToString("MMM dd, yyyy")</td>
+                                    <td>
+                                        @if (book.IsOverdue)
+                                        {
+                                            <span class="badge bg-danger">Overdue</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">On Time</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#returnModal-@book.Id">
+                                                Return
+                                            </button>
+                                        </div>
+
+                                        <!-- Return Modal -->
+                                        <div class="modal fade" id="returnModal-@book.Id" tabindex="-1" aria-labelledby="returnModalLabel-@book.Id" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="returnModalLabel-@book.Id">Return Book</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>Are you sure you want to return "@book.BookTitle"?</p>
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" id="addReview-@book.Id" checked>
+                                                            <label class="form-check-label" for="addReview-@book.Id">
+                                                                Add a review after returning
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <form asp-action="ReturnBook" asp-route-id="@book.Id" method="post">
+                                                            <input type="hidden" name="addReview" id="addReviewInput-@book.Id" value="true">
+                                                            <button type="submit" class="btn btn-primary">Return Book</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <script>
+                                            document.getElementById('addReview-@book.Id').addEventListener('change', function() {
+                                                document.getElementById('addReviewInput-@book.Id').value = this.checked;
+                                            });
+                                        </script>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Reading History</h5>
+        </div>
+        <div class="card-body">
+            @if (!Model.ReadingHistory.Any())
+            {
+                <p class="text-muted">Your reading history is empty. Return books to see them here.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Author</th>
+                                <th>Read Date</th>
+                                <th>Rating</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var book in Model.ReadingHistory)
+                            {
+                                <tr>
+                                    <td><a asp-controller="Book" asp-action="Details" asp-route-id="@book.BookId">@book.BookTitle</a></td>
+                                    <td>@book.BookAuthor</td>
+                                    <td>@book.ReadDate.ToString("MMM dd, yyyy")</td>
+                                    <td>
+                                        @if (book.Rating > 0)
+                                        {
+                                            @for (int i = 1; i <= 5; i++)
+                                            {
+                                                <i class="bi @(i <= book.Rating ? "bi-star-fill" : "bi-star")" style="color: #ffc107;"></i>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">Not rated</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (book.Rating == 0)
+                                        {
+                                            <a asp-action="AddReview" asp-route-id="@book.Id" class="btn btn-sm btn-primary">Add Review</a>
+                                        }
+                                        else
+                                        {
+                                            <a asp-action="AddReview" asp-route-id="@book.Id" class="btn btn-sm btn-outline-primary">Edit Review</a>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>

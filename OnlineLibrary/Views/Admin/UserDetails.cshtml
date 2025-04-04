@@ -1,0 +1,196 @@
+﻿@using OnlineLibrary.ViewModels
+@using OnlineLibrary.ViewModels.Dashboard
+@model DashboardViewModel
+@{
+    ViewData["Title"] = "User Details";
+}
+
+<div class="container">
+    <h1 class="mb-4">User Details</h1>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">User Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>Name:</strong> @Model.User.FirstName @Model.User.LastName
+                    </div>
+                    <div class="mb-3">
+                        <strong>Email:</strong> @Model.User.Email
+                    </div>
+                    <div class="mb-3">
+                        <strong>Phone:</strong> @(string.IsNullOrEmpty(Model.User.PhoneNumber) ? "Not provided" : Model.User.PhoneNumber)
+                    </div>
+                    <div class="mb-3">
+                        <strong>Role:</strong> @Model.User.Role
+                    </div>
+                    <div class="mb-3">
+                        <strong>Registration Date:</strong> @Model.User.RegistrationDate.ToString("MMMM dd, yyyy")
+                    </div>
+                    <div class="d-grid">
+                        <a asp-action="EditUser" asp-route-id="@Model.User.Id" class="btn btn-primary">Edit User</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">User Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <h2 class="text-primary">@Model.BorrowedBooks.Count(b => b.ReturnDate == null)</h2>
+                                <p class="text-muted">Currently Borrowed</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <h2 class="text-success">@Model.BorrowedBooks.Count(b => b.ReturnDate != null)</h2>
+                                <p class="text-muted">Books Returned</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <h2 class="text-info">@Model.ReadingHistory.Count</h2>
+                                <p class="text-muted">Books Read</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Borrowed Books</h5>
+        </div>
+        <div class="card-body">
+            @if (!Model.BorrowedBooks.Any())
+            {
+                <p class="text-muted">This user has not borrowed any books yet.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Author</th>
+                                <th>Borrowed Date</th>
+                                <th>Due Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var book in Model.BorrowedBooks)
+                            {
+                                <tr class="@(book.IsOverdue ? "table-danger" : "")">
+                                    <td><a asp-controller="Book" asp-action="Details" asp-route-id="@book.BookId">@book.BookTitle</a></td>
+                                    <td>@book.BookAuthor</td>
+                                    <td>@book.BorrowDate.ToString("MMM dd, yyyy")</td>
+                                    <td>@book.DueDate.ToString("MMM dd, yyyy")</td>
+                                    <td>
+                                        @if (book.ReturnDate != null)
+                                        {
+                                            <span class="badge bg-info">Returned on @book.ReturnDate?.ToString("MMM dd, yyyy")</span>
+                                        }
+                                        else if (book.IsOverdue)
+                                        {
+                                            <span class="badge bg-danger">Overdue</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">On Time</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (book.ReturnDate == null)
+                                        {
+                                            <form asp-action="ReturnBook" asp-route-id="@book.Id" method="post" onsubmit="return confirm('Are you sure you want to return this book?');">
+                                                <button type="submit" class="btn btn-sm btn-primary">Return</button>
+                                            </form>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Reading History</h5>
+        </div>
+        <div class="card-body">
+            @if (!Model.ReadingHistory.Any())
+            {
+                <p class="text-muted">This user has no reading history yet.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Author</th>
+                                <th>Read Date</th>
+                                <th>Rating</th>
+                                <th>Review</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var book in Model.ReadingHistory)
+                            {
+                                <tr>
+                                    <td><a asp-controller="Book" asp-action="Details" asp-route-id="@book.BookId">@book.BookTitle</a></td>
+                                    <td>@book.BookAuthor</td>
+                                    <td>@book.ReadDate.ToString("MMM dd, yyyy")</td>
+                                    <td>
+                                        @if (book.Rating > 0)
+                                        {
+                                            @for (int i = 1; i <= 5; i++)
+                                            {
+                                                <i class="bi @(i <= book.Rating ? "bi-star-fill" : "bi-star")" style="color: #ffc107;"></i>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">Not rated</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (string.IsNullOrEmpty(book.Review))
+                                        {
+                                            <span class="text-muted">No review</span>
+                                        }
+                                        else
+                                        {
+                                            @(book.Review.Length > 50 ? book.Review.Substring(0, 50) + "..." : book.Review)
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between">
+        <a asp-action="Users" class="btn btn-outline-secondary">Back to Users</a>
+    </div>
+</div>

@@ -1,0 +1,108 @@
+﻿@using OnlineLibrary.ViewModels.Book
+@model BookViewModel
+@{
+    ViewData["Title"] = "Edit Book";
+    var isAdmin = User.IsInRole("Admin");
+}
+
+<div class="container">
+    <h1 class="mb-4">Edit Book: @Model.Title</h1>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form asp-action="Edit">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="AuthorId" />
+                        <input type="hidden" asp-for="RegistrationDate" />
+
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label"></label>
+                            <input asp-for="Title" class="form-control" />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Author" class="form-label"></label>
+                            <input asp-for="Author" class="form-control" />
+                            <span asp-validation-for="Author" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Genre" class="form-label"></label>
+                            <select asp-for="Genre" class="form-select">
+                                <option value="">-- Select Genre --</option>
+                                <option value="Fiction">Fiction</option>
+                                <option value="Non-Fiction">Non-Fiction</option>
+                                <option value="Science Fiction">Science Fiction</option>
+                                <option value="Fantasy">Fantasy</option>
+                                <option value="Mystery">Mystery</option>
+                                <option value="Thriller">Thriller</option>
+                                <option value="Romance">Romance</option>
+                                <option value="Biography">Biography</option>
+                                <option value="History">History</option>
+                                <option value="Science">Science</option>
+                                <option value="Self-Help">Self-Help</option>
+                                <option value="Children">Children</option>
+                                <option value="Young Adult">Young Adult</option>
+                                <option value="Poetry">Poetry</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <span asp-validation-for="Genre" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="PublishedYear" class="form-label"></label>
+                            <input asp-for="PublishedYear" class="form-control" />
+                            <span asp-validation-for="PublishedYear" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label"></label>
+                            <textarea asp-for="Description" class="form-control" rows="5"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        @if (isAdmin)
+                        {
+                            <div class="mb-3 form-check">
+                                <input asp-for="Available" class="form-check-input" />
+                                <label asp-for="Available" class="form-check-label">Available for borrowing</label>
+                            </div>
+                        }
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">Guidelines</h5>
+                </div>
+                <div class="card-body">
+                    <p>Please provide accurate information about the book:</p>
+                    <ul>
+                        <li>Title should be the full title of the book</li>
+                        <li>Author should be the full name of the author</li>
+                        <li>Genre should be the primary genre of the book</li>
+                        <li>Published Year should be the year of first publication</li>
+                        <li>Description should provide a brief summary of the book</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

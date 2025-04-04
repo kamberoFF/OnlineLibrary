@@ -1,0 +1,85 @@
+﻿@using OnlineLibrary.ViewModels
+@using OnlineLibrary.ViewModels.Book
+@model List<BookViewModel>
+@{
+    ViewData["Title"] = "Manage Books";
+}
+
+<div class="container">
+    <h1 class="mb-4">Manage Books</h1>
+
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <form asp-action="Books" method="get" class="d-flex">
+                <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" class="form-control me-2" placeholder="Search by title or author" />
+                <button type="submit" class="btn btn-primary">Search</button>
+            </form>
+        </div>
+        <div class="col-md-4 text-end">
+            <a asp-controller="Book" asp-action="Create" class="btn btn-success">Add New Book</a>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>
+                                <a asp-action="Books" asp-route-sortOrder="@ViewData["TitleSortParam"]" asp-route-searchString="@ViewData["CurrentFilter"]">Title</a>
+                            </th>
+                            <th>
+                                <a asp-action="Books" asp-route-sortOrder="@ViewData["AuthorSortParam"]" asp-route-searchString="@ViewData["CurrentFilter"]">Author</a>
+                            </th>
+                            <th>Genre</th>
+                            <th>
+                                <a asp-action="Books" asp-route-sortOrder="@ViewData["YearSortParam"]" asp-route-searchString="@ViewData["CurrentFilter"]">Year</a>
+                            </th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var book in Model)
+                        {
+                            <tr>
+                                <td><a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id">@book.Title</a></td>
+                                <td>@book.Author</td>
+                                <td>@book.Genre</td>
+                                <td>@book.PublishedYear</td>
+                                <td>
+                                    <span class="badge @(book.Available ? "bg-success" : "bg-danger")">
+                                        @(book.Available ? "Available" : "Borrowed")
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a asp-controller="Book" asp-action="Edit" asp-route-id="@book.Id" class="btn btn-sm btn-primary">Edit</a>
+                                        <a asp-controller="Book" asp-action="Delete" asp-route-id="@book.Id" class="btn btn-sm btn-danger">Delete</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,85 @@
+﻿@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="container">
+    <h1 class="mb-4">Admin Dashboard</h1>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card shadow-sm text-center h-100">
+                <div class="card-body">
+                    <h1 class="display-4 text-primary">@ViewBag.TotalBooks</h1>
+                    <p class="lead">Total Books</p>
+                    <a asp-action="Books" class="btn btn-outline-primary">Manage Books</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm text-center h-100">
+                <div class="card-body">
+                    <h1 class="display-4 text-success">@ViewBag.TotalUsers</h1>
+                    <p class="lead">Registered Users</p>
+                    <a asp-action="Users" class="btn btn-outline-success">Manage Users</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm text-center h-100">
+                <div class="card-body">
+                    <h1 class="display-4 text-info">@ViewBag.TotalBorrowings</h1>
+                    <p class="lead">Total Borrowings</p>
+                    <a asp-action="Borrowings" asp-route-activeOnly="false" class="btn btn-outline-info">View All</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm text-center h-100">
+                <div class="card-body">
+                    <h1 class="display-4 text-warning">@ViewBag.ActiveBorrowings</h1>
+                    <p class="lead">Active Borrowings</p>
+                    <a asp-action="Borrowings" class="btn btn-outline-warning">View Active</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a asp-controller="Book" asp-action="Create" class="btn btn-primary">Add New Book</a>
+                        <a asp-controller="Book" asp-action="Catalog" class="btn btn-outline-secondary">View Book Catalog</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">System Information</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Server Time
+                            <span>@DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Application Version
+                            <span>1.0.0</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Database Status
+                            <span class="badge bg-success">Connected</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,65 @@
+﻿@using Microsoft.AspNetCore.Identity
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    ViewData["Title"] = "Dashboard";
+    var user = await UserManager.GetUserAsync(User);
+}
+
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h1>Library Dashboard</h1>
+            <p class="lead">Welcome, @user.FirstName @user.LastName!</p>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Your Library Account</h5>
+        </div>
+        <div class="card-body">
+            <p>This is a protected dashboard page that only authenticated users can access.</p>
+            <p>In a real application, you would see your borrowed books, reading history, and personalized recommendations here.</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Borrowed Books</h5>
+                </div>
+                <div class="card-body">
+                    <p>You currently have no borrowed books.</p>
+                    <a href="#" class="btn btn-primary">Browse Catalog</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Reading History</h5>
+                </div>
+                <div class="card-body">
+                    <p>Your reading history will appear here.</p>
+                    <a href="#" class="btn btn-primary">View History</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Account Settings</h5>
+                </div>
+                <div class="card-body">
+                    <p>Update your profile and preferences.</p>
+                    <a href="#" class="btn btn-primary">Settings</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

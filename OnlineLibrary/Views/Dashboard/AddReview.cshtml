@@ -1,0 +1,97 @@
+﻿@using OnlineLibrary.ViewModels
+@using OnlineLibrary.ViewModels.Book
+@model ReadingHistoryViewModel
+@{
+    ViewData["Title"] = "Add Review";
+}
+
+<div class="container">
+    <h1 class="mb-4">Add Review</h1>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">@Model.BookTitle</h5>
+                    <p class="text-muted mb-0">by @Model.BookAuthor</p>
+                </div>
+                <div class="card-body">
+                    <form asp-action="AddReview">
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="BookId" />
+                        <input type="hidden" asp-for="BookTitle" />
+                        <input type="hidden" asp-for="BookAuthor" />
+                        <input type="hidden" asp-for="ReadDate" />
+
+                        <div class="mb-3">
+                            <label asp-for="Rating" class="form-label">Rating</label>
+                            <div class="rating">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="Rating" id="rating1" value="1" @(Model.Rating == 1 ? "checked" : "")>
+                                    <label class="form-check-label" for="rating1">1</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="Rating" id="rating2" value="2" @(Model.Rating == 2 ? "checked" : "")>
+                                    <label class="form-check-label" for="rating2">2</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="Rating" id="rating3" value="3" @(Model.Rating == 3 ? "checked" : "")>
+                                    <label class="form-check-label" for="rating3">3</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="Rating" id="rating4" value="4" @(Model.Rating == 4 ? "checked" : "")>
+                                    <label class="form-check-label" for="rating4">4</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="Rating" id="rating5" value="5" @(Model.Rating == 5 ? "checked" : "")>
+                                    <label class="form-check-label" for="rating5">5</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Review" class="form-label">Review</label>
+                            <textarea asp-for="Review" class="form-control" rows="5" placeholder="Write your review here..."></textarea>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Save Review</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">Rating Guide</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            1 Star
+                            <span class="badge bg-secondary">Poor</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            2 Stars
+                            <span class="badge bg-secondary">Fair</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            3 Stars
+                            <span class="badge bg-secondary">Good</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            4 Stars
+                            <span class="badge bg-secondary">Very Good</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            5 Stars
+                            <span class="badge bg-secondary">Excellent</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
