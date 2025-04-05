@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace OnlineLibrary.Models
+﻿namespace OnlineLibrary.Models
 {
     public class Book
     {
@@ -12,6 +10,7 @@ namespace OnlineLibrary.Models
         public string Description { get; set; }
         public int PublishedYear { get; set; }
         public bool Available { get; set; }
+        public bool AvailableToBorrow { get; set; }
         public DateTime RegistrationDate { get; set; }
     }
 }

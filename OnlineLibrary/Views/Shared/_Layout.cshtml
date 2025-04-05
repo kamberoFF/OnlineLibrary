@@ -26,12 +26,6 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Book" asp-action="Catalog">Book Catalog</a>
                         </li>
-                        @if (User.Identity.IsAuthenticated)
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Dashboard" asp-action="Index">My Dashboard</a>
-                            </li>
-                        }
                         @if (User.IsInRole("Admin"))
                         {
                             <li class="nav-item dropdown">

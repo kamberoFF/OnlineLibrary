@@ -14,7 +14,11 @@
             <div class="card shadow-sm">
                 <div class="card-body">
                     <form asp-action="Create">
-                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div asp-validation-summary="All" class="text-danger"></div>
+
+                        <div class="mb-3">
+                            <input type="hidden" asp-for="Id" value="@(Guid.NewGuid().ToString())" />
+                        </div>
 
                         <div class="mb-3">
                             <label asp-for="Title" class="form-label"></label>
@@ -53,7 +57,7 @@
 
                         <div class="mb-3">
                             <label asp-for="PublishedYear" class="form-label"></label>
-                            <input asp-for="PublishedYear" class="form-control" />
+                            <input asp-for="PublishedYear" class="form-control" type="number" min="1000" max="2100" step="1" />
                             <span asp-validation-for="PublishedYear" class="text-danger"></span>
                         </div>
 

@@ -1,9 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace OnlineLibrary.ViewModels.Book
 {
     public class BookViewModel
     {
+        [HiddenInput]
         public string Id { get; set; }
 
         [Required]
@@ -14,6 +16,7 @@ namespace OnlineLibrary.ViewModels.Book
         [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 2)]
         public string Author { get; set; }
 
+        [HiddenInput]
         public string AuthorId { get; set; }
 
         [Required]
@@ -28,6 +31,8 @@ namespace OnlineLibrary.ViewModels.Book
         public int PublishedYear { get; set; }
 
         public bool Available { get; set; }
+
+        public bool AvailableToBorrow { get; set; }
 
         public DateTime RegistrationDate { get; set; }
     }

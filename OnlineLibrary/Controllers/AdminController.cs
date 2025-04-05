@@ -28,12 +28,12 @@ namespace OnlineLibrary.Controllers
             var totalBooks = await _context.Books.CountAsync();
             var totalUsers = await _userManager.Users.CountAsync();
             var totalBorrowings = await _context.BorrowedBooks.CountAsync();
-            var activeBorrowings = await _context.BorrowedBooks.Where(bb => bb.ReturnDate == null).CountAsync();
+            var totalReviews = await _context.ReadingHistory.Where(rh => rh.Rating != 0).CountAsync();
 
             ViewBag.TotalBooks = totalBooks;
             ViewBag.TotalUsers = totalUsers;
             ViewBag.TotalBorrowings = totalBorrowings;
-            ViewBag.ActiveBorrowings = activeBorrowings;
+            ViewBag.TotalReviews = totalReviews;
 
             return View();
         }
@@ -87,6 +87,7 @@ namespace OnlineLibrary.Controllers
                     Description = b.Description,
                     PublishedYear = b.PublishedYear,
                     Available = b.Available,
+                    AvailableToBorrow = b.AvailableToBorrow,
                     RegistrationDate = b.RegistrationDate
                 })
                 .ToListAsync();
@@ -302,7 +303,7 @@ namespace OnlineLibrary.Controllers
             var book = await _context.Books.FindAsync(borrowedBook.BookId);
             if (book != null)
             {
-                book.Available = true;
+                book.AvailableToBorrow = true;
             }
 
             // Add to reading history

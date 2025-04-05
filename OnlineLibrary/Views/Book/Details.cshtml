@@ -44,9 +44,18 @@
 
                     <div class="d-flex mb-3">
                         <span class="badge bg-secondary me-2">@Model.Genre</span>
-                        <span class="badge @(Model.Available ? "bg-success" : "bg-danger")">
-                            @(Model.Available ? "Available" : "Borrowed")
-                        </span>
+                        @if (!Model.Available)
+                        {
+                            <span class="badge bg-danger">
+                                Unavailable
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge @(Model.AvailableToBorrow ? "bg-success" : "bg-danger")">
+                                @(Model.AvailableToBorrow ? "Available" : "Borrowed")
+                            </span>
+                        }
                     </div>
 
                     <p class="card-text">@Model.Description</p>
@@ -66,9 +75,9 @@
                                 <i class="bi bi-book" style="font-size: 5rem;"></i>
                             </div>
 
-                            @if (User.Identity.IsAuthenticated)
+                            @if (User.Identity.IsAuthenticated && Model.Available)
                             {
-                                if (Model.Available)
+                                if (Model.AvailableToBorrow)
                                 {
                                     <form asp-action="Borrow" asp-route-id="@Model.Id" method="post" class="d-grid gap-2 w-100">
                                         <button type="submit" class="btn btn-primary">Borrow This Book</button>
@@ -78,6 +87,10 @@
                                 {
                                     <button class="btn btn-secondary" disabled>Currently Borrowed</button>
                                 }
+                            }
+                            else if (User.Identity.IsAuthenticated && !Model.Available)
+                            {
+                                <button class="btn btn-secondary" disabled>Currently Unavailable</button>
                             }
                             else
                             {

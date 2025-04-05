@@ -65,9 +65,18 @@
                                 <td>@book.Genre</td>
                                 <td>@book.PublishedYear</td>
                                 <td>
-                                    <span class="badge @(book.Available ? "bg-success" : "bg-danger")">
-                                        @(book.Available ? "Available" : "Borrowed")
-                                    </span>
+                                    @if (!book.Available)
+                                    {
+                                        <span class="badge bg-danger">
+                                            Unavailable
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge @(book.AvailableToBorrow ? "bg-success" : "bg-danger")">
+                                            @(book.AvailableToBorrow ? "Available" : "Borrowed")
+                                        </span>
+                                    }
                                 </td>
                                 <td>
                                     <div class="btn-group" role="group">

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace OnlineLibrary.Models
+﻿namespace OnlineLibrary.Models
 {
     public class BorrowedBook
     {

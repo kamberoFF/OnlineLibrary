@@ -252,6 +252,9 @@ namespace OnlineLibrary.Migrations
                     b.Property<bool>("Available")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("AvailableToBorrow")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -273,7 +276,7 @@ namespace OnlineLibrary.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Books", (string)null);
+                    b.ToTable("Books");
                 });
 
             modelBuilder.Entity("OnlineLibrary.Models.BorrowedBook", b =>
@@ -300,7 +303,7 @@ namespace OnlineLibrary.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("BorrowedBooks", (string)null);
+                    b.ToTable("BorrowedBooks");
                 });
 
             modelBuilder.Entity("OnlineLibrary.Models.ReadingHistory", b =>
@@ -331,7 +334,7 @@ namespace OnlineLibrary.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ReadingHistory", (string)null);
+                    b.ToTable("ReadingHistory");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

@@ -5,7 +5,7 @@
 namespace OnlineLibrary.Migrations
 {
     /// <inheritdoc />
-    public partial class FourthMigration : Migration
+    public partial class whenWillTheSufferingEnd : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

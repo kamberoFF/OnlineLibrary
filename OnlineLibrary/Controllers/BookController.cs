@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OnlineLibrary.Data;
 using OnlineLibrary.Models;
-using OnlineLibrary.ViewModels;
 using OnlineLibrary.ViewModels.Book;
 using System.Security.Claims;
 
@@ -64,6 +63,7 @@ namespace OnlineLibrary.Controllers
                     Description = b.Description,
                     PublishedYear = b.PublishedYear,
                     Available = b.Available,
+                    AvailableToBorrow = b.AvailableToBorrow,
                     RegistrationDate = b.RegistrationDate
                 })
                 .ToListAsync();
@@ -107,6 +107,7 @@ namespace OnlineLibrary.Controllers
                 Description = book.Description,
                 PublishedYear = book.PublishedYear,
                 Available = book.Available,
+                AvailableToBorrow = book.AvailableToBorrow,
                 RegistrationDate = book.RegistrationDate
             };
 
@@ -132,6 +133,12 @@ namespace OnlineLibrary.Controllers
             }
 
             if (!book.Available)
+            {
+                TempData["ErrorMessage"] = "This book is not available.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            else if (!book.AvailableToBorrow)
             {
                 TempData["ErrorMessage"] = "This book is not available for borrowing.";
                 return RedirectToAction(nameof(Details), new { id });
@@ -169,7 +176,7 @@ namespace OnlineLibrary.Controllers
             };
 
             // Update book availability
-            book.Available = false;
+            book.AvailableToBorrow = false;
 
             _context.BorrowedBooks.Add(borrowedBook);
             await _context.SaveChangesAsync();
@@ -187,15 +194,27 @@ namespace OnlineLibrary.Controllers
 
         // POST: Book/Create
         [HttpPost]
+        // Maybe change so not only admin can create books
         [Authorize(Roles = "Admin")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(BookViewModel viewModel)
         {
-            if (ModelState.IsValid)
+            // Debug output
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState
+                    .Where(e => e.Value.Errors.Count > 0)
+                    .Select(e => $"{e.Key}: {string.Join(", ", e.Value.Errors.Select(err => err.ErrorMessage))}")
+                    .ToList();
+
+                Console.WriteLine($"Validation errors: {string.Join(" | ", errors)}");
+            }
+
+            else if (ModelState.IsValid)
             {
                 var book = new Book
                 {
-                    Id = Guid.NewGuid().ToString(),
+                    Id = viewModel.Id,
                     Title = viewModel.Title,
                     Author = viewModel.Author,
                     AuthorId = viewModel.AuthorId,
@@ -203,10 +222,11 @@ namespace OnlineLibrary.Controllers
                     Description = viewModel.Description,
                     PublishedYear = viewModel.PublishedYear,
                     Available = true,
+                    AvailableToBorrow = true,
                     RegistrationDate = DateTime.UtcNow
                 };
 
-                _context.Add(book);
+                _context.Books.Add(book);
                 await _context.SaveChangesAsync();
 
                 TempData["SuccessMessage"] = "Book added successfully.";
@@ -248,6 +268,7 @@ namespace OnlineLibrary.Controllers
                 Description = book.Description,
                 PublishedYear = book.PublishedYear,
                 Available = book.Available,
+                AvailableToBorrow = book.AvailableToBorrow,
                 RegistrationDate = book.RegistrationDate
             };
 
@@ -262,6 +283,9 @@ namespace OnlineLibrary.Controllers
         {
             if (id != viewModel.Id)
             {
+                Console.WriteLine("Id mismatch");
+                Console.WriteLine($"URL book id: {id}");
+                Console.WriteLine($"ViewModel book id: {viewModel}");
                 return NotFound();
             }
 
@@ -273,6 +297,8 @@ namespace OnlineLibrary.Controllers
 
                     if (book == null)
                     {
+                        Console.WriteLine("Book not found with URL id");
+                        Console.WriteLine(id);
                         return NotFound();
                     }
 
@@ -293,15 +319,18 @@ namespace OnlineLibrary.Controllers
                     if (user.Role == "Admin")
                     {
                         book.Available = viewModel.Available;
+                        book.AvailableToBorrow = viewModel.AvailableToBorrow;
                     }
 
-                    _context.Update(book);
+                    _context.Books.Update(book);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
                     if (!BookExists(viewModel.Id))
                     {
+                        Console.WriteLine("Book not found by ViewModel if from db");
+                        Console.WriteLine(viewModel.Id);
                         return NotFound();
                     }
                     else
@@ -341,6 +370,7 @@ namespace OnlineLibrary.Controllers
                 Description = book.Description,
                 PublishedYear = book.PublishedYear,
                 Available = book.Available,
+                AvailableToBorrow = book.AvailableToBorrow,
                 RegistrationDate = book.RegistrationDate
             };
 

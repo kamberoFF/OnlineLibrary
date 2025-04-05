@@ -6,8 +6,7 @@ namespace OnlineLibrary.Models
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        // Change the role for production
-        public string Role { get; set; } = "Admin";
+        public string Role { get; set; }
         public DateTime RegistrationDate { get; set; } = DateTime.UtcNow;
     }
 }

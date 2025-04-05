@@ -102,7 +102,7 @@ namespace OnlineLibrary.Controllers
             var book = await _context.Books.FindAsync(borrowedBook.BookId);
             if (book != null)
             {
-                book.Available = true;
+                book.AvailableToBorrow = true;
             }
 
             // Add to reading history

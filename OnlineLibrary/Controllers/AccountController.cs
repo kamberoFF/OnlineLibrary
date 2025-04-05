@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OnlineLibrary.Models;
 using OnlineLibrary.Services;
-using OnlineLibrary.ViewModels;
 using OnlineLibrary.ViewModels.Account;
 using System.Text.Encodings.Web;
 
@@ -33,32 +32,36 @@ namespace OnlineLibrary.Controllers
         public async Task<IActionResult> Settings()
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return NotFound();
-            }
 
-            var viewModel = new AccountSettingsViewModel
+            var model = new AccountSettingsViewModel
             {
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Email = user.Email,
-                PhoneNumber = user.PhoneNumber
+                UpdateAccountViewModel = new UpdateAccountViewModel
+                {
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Email = user.Email,
+                    PhoneNumber = user.PhoneNumber
+                },
+                ChangePasswordViewModel = new ChangePasswordViewModel()
             };
 
-            return View(viewModel);
+            return View(model);
         }
 
-        // POST: Account/Settings
+        // POST: Account/UpdateProfile
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Settings(AccountSettingsViewModel viewModel)
+        public async Task<IActionResult> UpdateProfile(UpdateAccountViewModel viewModel)
         {
-            // Validate model only for the fields that are being updated
             if (!ModelState.IsValid)
             {
-                return View(viewModel);
+                // Rebuild the main view model
+                return View("Settings", new AccountSettingsViewModel
+                {
+                    UpdateAccountViewModel = viewModel,
+                    ChangePasswordViewModel = new ChangePasswordViewModel()
+                });
             }
 
             var user = await _userManager.GetUserAsync(User);
@@ -88,8 +91,61 @@ namespace OnlineLibrary.Controllers
                 emailChanged = true;
             }
 
-            // Update password if provided
-            bool passwordChanged = false;
+            // Save user changes
+            var updateResult = await _userManager.UpdateAsync(user);
+            if (!updateResult.Succeeded)
+            {
+                foreach (var error in updateResult.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+                return View(viewModel);
+            }
+
+            // Refresh sign-in if email changed
+            if (emailChanged)
+            {
+                await _signInManager.RefreshSignInAsync(user);
+            }
+
+            TempData["SuccessMessage"] = "Profile updated successfully";
+            return RedirectToAction(nameof(Settings));
+        }
+
+        // POST: Account/ChangePassword
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel viewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                var originalUser = await _userManager.GetUserAsync(User);
+                if (originalUser == null)
+                {
+                    return NotFound();
+                }
+
+                // Rebuild the main view model
+                return View("Settings", new AccountSettingsViewModel
+                {
+                    UpdateAccountViewModel = new UpdateAccountViewModel
+                    {
+                        FirstName = originalUser.FirstName,
+                        LastName = originalUser.LastName,
+                        Email = originalUser.Email,
+                        PhoneNumber = originalUser.PhoneNumber
+                    },
+                    ChangePasswordViewModel = viewModel
+                });
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
             if (!string.IsNullOrEmpty(viewModel.CurrentPassword) && !string.IsNullOrEmpty(viewModel.NewPassword))
             {
                 var changePasswordResult = await _userManager.ChangePasswordAsync(user, viewModel.CurrentPassword, viewModel.NewPassword);
@@ -101,7 +157,6 @@ namespace OnlineLibrary.Controllers
                     }
                     return View(viewModel);
                 }
-                passwordChanged = true;
             }
 
             // Save user changes
@@ -115,13 +170,10 @@ namespace OnlineLibrary.Controllers
                 return View(viewModel);
             }
 
-            // Refresh sign-in if email or password changed
-            if (emailChanged || passwordChanged)
-            {
-                await _signInManager.RefreshSignInAsync(user);
-            }
+            // Refresh sign-in when password changed
+            await _signInManager.RefreshSignInAsync(user);
 
-            TempData["SuccessMessage"] = "Your profile has been updated.";
+            TempData["SuccessMessage"] = "Password changed successfully";
             return RedirectToAction(nameof(Settings));
         }
 
@@ -153,16 +205,17 @@ namespace OnlineLibrary.Controllers
                 {
                     _logger.LogInformation("User created a new account with password.");
 
-                    // Send email confirmation
-                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    var callbackUrl = Url.Action(
-                        "ConfirmEmail",
-                        "Account",
-                        new { userId = user.Id, code = code },
-                        protocol: HttpContext.Request.Scheme);
+                    // Uncomment the following lines if you want to send a confirmation email
+                    //// Send email confirmation
+                    //var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    //var callbackUrl = Url.Action(
+                    //    "ConfirmEmail",
+                    //    "Account",
+                    //    new { userId = user.Id, code = code },
+                    //    protocol: HttpContext.Request.Scheme);
 
-                    await _emailSender.SendEmailAsync(model.Email, "Confirm your email",
-                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                    //await _emailSender.SendEmailAsync(model.Email, "Confirm your email",
+                    //    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     return RedirectToAction("Index", "Home");
@@ -205,6 +258,7 @@ namespace OnlineLibrary.Controllers
                     _logger.LogInformation("User logged in.");
                     return RedirectToLocal(returnUrl);
                 }
+
                 // Currently not implemented
                 //if (result.RequiresTwoFactor)
                 //{

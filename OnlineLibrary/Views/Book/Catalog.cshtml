@@ -72,9 +72,18 @@
                             <h6 class="card-subtitle mb-2 text-muted">@book.Author</h6>
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <span class="badge bg-secondary">@book.Genre</span>
-                                <span class="badge @(book.Available ? "bg-success" : "bg-danger")">
-                                    @(book.Available ? "Available" : "Borrowed")
-                                </span>
+                                @if (!book.Available)
+                                {
+                                    <span class="badge bg-danger">
+                                        Unavailable
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge @(book.AvailableToBorrow ? "bg-success" : "bg-danger")">
+                                        @(book.AvailableToBorrow ? "Available" : "Borrowed")
+                                    </span>
+                                }
                             </div>
                             <p class="card-text">@(book.Description.Length > 100 ? book.Description.Substring(0, 100) + "..." : book.Description)</p>
                         </div>
